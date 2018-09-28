@@ -1,0 +1,174 @@
+@media (max-width: 768px) 
+{
+    /* Start Aside */
+    .aside-mobile
+    {
+        width: auto !important
+    }
+    .aside-mobile h2 i
+    {
+        float: none;
+        padding: 0
+    }
+    .aside-mobile span
+    {
+        display: none
+    }
+    /* End Aside */
+
+    /* Start Navbar */
+    .main-content
+    {
+        max-width: auto;
+    }
+    .navbar .navbar-nav .dropdown-menu
+    {
+        position: absolute;
+    }
+    /* End Navbar */
+
+    /* Start Configure */
+    .configure form
+    {
+        padding-left: 0
+    }
+    /* End Configure */
+    
+    /* Start Outcomes */
+    .outcomes .selector li
+    {
+        width: 32%
+    }
+    .outcomes .selector li img
+    {
+        width: 100%
+    }
+    .outcomes .selector li h6
+    {
+        font-size: 12px;
+    }
+    .outcomes .paragraph .custom-select
+    {
+        font-size: 12px;
+    }
+    .outcomes .paragraph .card-header span
+    {
+        padding-top: 10px;
+        font-size: 12px;
+    }
+    /* End Outcomes */
+
+    /* Start Controls */
+    .controls
+    {
+        padding-left: 0
+    }
+    .controls button
+    {
+        font-size: 16px;
+        padding: 5px 10px;
+    }
+    /* End Controls */
+
+    /* Start Preview */
+    .preview
+    {
+        padding: 20px 5px;
+        min-height: initial;
+    }
+    .preview .result
+    {
+        padding: 0;
+        min-height: 250px;
+    }
+    .preview .result .preview-info
+    {
+        top: 15px;
+        padding: 0 10px;
+    }
+    .preview .result .preview-info h3
+    {
+        font-size: 22px;
+    }
+    .preview .result .preview-info button
+    {
+        font-size: 12px;
+    }
+    .preview .outcomes-result
+    {
+        padding: 10px;
+    }
+    .preview .outcomes-result h2
+    {
+        font-size: 18px;
+    }
+    .preview .outcomes-result p
+    {
+        font-size: 14px
+    }
+    /* End Preview */
+}
+@media (min-width: 576px) and (max-width: 1050px)
+{
+    /* Start Aside */
+    aside .menu li
+    {
+        padding: 10px 0 10px 10px;
+    }
+    aside .menu li i
+    {
+        padding-right: 5px;
+        width: 30px;
+    }
+    aside .menu li span
+    {
+        font-size: 12px;
+    }
+    /* End Aside */
+    
+    /* Start Outcomes */
+    .outcomes .selector li
+    {
+        width: 32%
+    }
+    .outcomes .selector li img
+    {
+        width: 100%
+    }
+    .outcomes .selector li h6
+    {
+        font-size: 12px;
+    }
+    .outcomes .paragraph .custom-select
+    {
+        font-size: 12px;
+        padding: 0
+    }
+    .outcomes .paragraph .choose:before
+    {
+        right: 5px;
+    }
+    .outcomes .paragraph .card-header span
+    {
+        padding-top: 10px;
+        font-size: 12px;
+    }
+    /* End Outcomes */
+    .controls button
+    {
+        width: 100%;
+        margin: 5px auto;
+    }
+}
+@media (min-width: 769px) 
+{
+    .main-content
+    {
+        max-width: 100%;
+        flex-grow: 1;
+    }
+    .aside-responsive.flexible
+    {
+        flex: 0 0 50px;
+    }
+}

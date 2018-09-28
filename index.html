@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <!-- IE Compatibility Meta -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" >
+		<!-- First Mobile Meta -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Quiz</title>
+		<link rel="icon" href="images/favicon.png">
+        <!-- css files -->
+        <link rel="stylesheet" href="css/bootstrap.css" />
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+        <link rel="stylesheet" href="css/index.css" />
+        <link rel="stylesheet" href="css/media.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
+        <!--[if lt IE 9]>
+            <script src="js/html5shiv.min.js"></script>
+            <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+		<!-- Start Section Content -->
+		<section class="content">
+			<div class="container-fluid">
+				<div class="row no-gutters">
+					<div class="col-2 aside-responsive">
+						<!-- Start Aside -->
+						<aside class="aside-mobile">
+							<h2><span>Quiz</span> <i class="fas fa-bars sidebar-menu"></i></h2>
+							<ul class="menu">
+								<li class="active"><i class="fas fa-pencil-alt"></i> <span>Configure</span></li>
+								<li><i class="fas fa-bezier-curve"></i> <span>Outcomes</span></li>
+								<li><i class="far fa-sticky-note"></i> <span>Questions</span></li>
+								<li><i class="fas fa-user-friends"></i> <span>Leads</span></li>
+								<li><i class="fas fa-bookmark"></i> <span>Offer</span></li>
+								<li><i class="far fa-paper-plane"></i> <span>Review & Publish</span></li>
+								<hr>
+								<li><i class="fas fa-database"></i> <span>Dashboard</span></li>
+								<li><i class="far fa-user"></i> <span>My Account</span></li>
+								<li><i class="fas fa-bezier-curve"></i> <span>Integrations</span></li>
+							</ul>
+						</aside> <!-- End Aside -->
+					</div>
+					<div class="col-10 main-content">
+						<nav class="navbar navbar-expand-lg navbar-light bg-light">
+							<div class="container-fluid">
+								<!-- Collect the nav links, forms, and other content for toggling -->
+								<div class="navbar-collapse" id="info">
+									<ul class="navbar-nav ml-auto">
+										<li class="nav-item dropdown">
+											<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+												<i class="fas fa-cog"></i>
+												<h6>Admin/Name</h6>
+												<img class="rounded-circle" src="images/user.jpg" alt="User" />
+											</a>
+											<ul class="dropdown-menu">
+												<a class="dropdown-item" href="#">Action</a>
+												<a class="dropdown-item" href="#">Another action</a>
+												<a class="dropdown-item" href="#">Something else here</a>
+											</ul>
+										</li>
+									</ul>
+								</div> <!-- End Navbar Collapse -->
+							</div> <!-- End container Fluid -->
+						</nav> <!-- End Navbar -->
+
+						<div class="row no-gutters">
+							<div class="col-sm-5">
+								<!-- Start Section Configure -->
+								<section class="configure config">
+									<h4>Create New Quiz ..</h4>
+									<div class="container">
+										<form rol="form" class="form-group" id="main-form">
+											<label>Quiz Name</label>
+											<input type="text" class="form-control" name="quiz-name" disabled="disabled"/>
+
+											<label>Quiz Image</label>
+											<div class="image-upload-wrap">
+												<input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" disabled="disabled"/>
+												<div class="drag-text">
+													<img src="images/photo-camera.png" alt="photo camera" />
+													<h5>Drop Image to Upload<br>or <span>Click here</span></h5>
+												</div>
+											</div>
+
+											<label>Quiz Title</label>
+											<input type="text" class="form-control" name="quiz-title" disabled="disabled"/>
+
+											<label>Quiz Description</label>
+											<input type="text" class="form-control" name="quiz-desc" disabled="disabled"/>
+
+											<label>Button Title</label>
+											<input type="text" class="form-control" name="button-title" disabled="disabled"/>
+
+											<label>Start Page</label>
+											<label class="switch">
+												<input type="checkbox">
+												<span class="slider"></span>
+											</label>
+										</form>
+									</div> <!-- Container -->
+								</section> <!-- End Section Configure -->
+
+								<!-- Start Section Outcomes -->
+                                <section class="outcomes configure">
+									<h4>Outcomes ..</h4>
+									<div class="container">
+										<form rol="form" class="form-group">
+											<label>Outcomes Title</label>
+											<input type="text" class="form-control" name="outcomes-title" />
+
+											<label>Select Outcome type</label>
+											<ul class="list-unstyled selector">
+												<li>
+													<img src="images/heading.png" alt="Redirect URL" />
+													<h6>Redirect URL</h6>
+												</li>
+												<li>
+													<img src="images/paragraph.png" alt="Paragraph" />
+													<h6>Paragraph</h6>
+												</li>
+												<li>
+													<img src="images/image.png" alt="Image" />
+													<h6>Image</h6>
+												</li>
+												<li>
+													<img src="images/heading.png" alt="Headline" />
+													<h6>Headline</h6>
+												</li>
+												<li>
+													<img src="images/paragraph.png" alt="Paragraph" />
+													<h6>Paragraph</h6>
+												</li>
+												<li>
+													<img src="images/video.png" alt="Video" />
+													<h6>Video</h6>
+												</li>
+											</ul>
+
+											<div class="redirect">
+												<label>Redirect URL</label>
+												<input type="text" class="form-control" name="outcomes-redirect" disabled="disabled"/>
+											</div>
+
+											<div class="paragraph">
+												<div class="card-header">
+													<div class="row no-gutters">
+														<div class="col-5">
+															<div class="choose">
+																<select class="custom-select">
+																	<option selected>Source Sans Pro</option>
+																	<option value="1">Droid</option>
+																	<option value="2">Sans Serif</option>
+																	<option value="3">Arial</option>
+																</select>
+															</div>
+														</div>
+														<div class="col-2">
+															<div class="choose">
+																<select class="custom-select">
+																	<option selected>H1</option>
+																	<option value="1">H2</option>
+																	<option value="2">H3</option>
+																	<option value="3">H4</option>
+																	<option value="3">H5</option>
+																	<option value="3">H6</option>
+																</select>
+															</div>
+														</div>
+														<div class="col-2">
+															<span class="bold">B</span>
+														</div>
+														<div class="col-2">
+															<span class="text-underline">U</span>
+														</div>
+													</div>
+												</div>
+												<textarea class="form-control" name="outcomes-paragraph" disabled="disabled"></textarea>
+											  </div>
+
+											  <div class="image-upload-wrap">
+												  <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" disabled="disabled"/>
+												  <div class="drag-text">
+													  <img src="images/photo-camera.png" alt="photo camera" />
+													  <h5>Drop Image to Upload<br>or <span>Click here</span></h5>
+												  </div>
+											  </div>
+										</form>
+									</div> <!-- Container -->
+								</section> <!-- End Section Outcomes -->
+
+								<!-- Start Section Questions -->
+								<section class="questions configure">
+									<h4>Create New Quiz ..</h4>
+									<div class="container">
+										<form rol="form" class="form-group">
+											<label>Questions 1#</label>
+											<input type="text" class="form-control" name="quiz-name"  disabled="disabled"/>
+
+											<label>Answer Type</label>
+											<select class="custom-select" disabled="disabled">
+												<option value="1">Image & Text Answers</option>
+												<option value="2">Text Answers</option>
+											</select>
+
+											<label>Answers</label>
+											<div class="dropdown">
+												<button class="btn dropdown-toggle" type="button" id="answers" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled="disabled">
+													Mapped Outcome
+												</button>
+												<div class="dropdown-menu" aria-labelledby="answers">
+													<a class="dropdown-item" href="#">Outcome 1</a>
+													<a class="dropdown-item" href="#">Outcome 2</a>
+												</div>
+											</div>
+										</form>
+									</div> <!-- Container -->
+								</section> <!-- End Section Questions -->
+
+								<div class="controls">
+									<div class="container">
+										<button type="submit" form="main-form" class="btn btn-secondary btn-lg">Cancel</button>
+										<button type="submit" form="main-form" class="btn btn-success btn-lg" disabled="disabled">Save and Creat Quiz</button>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-7">
+								<div class="preview">
+									<label class="live">Live preview</label>
+									<div class="result configure-result">
+										<div class="file-upload-content">
+											<img class="file-upload-image" src="#" alt="your image" />
+											<div class="preview-info">
+												<h3></h3>
+												<p></p>
+												<button class="btn btn-success btn-lg"></button>
+											</div>
+										</div>
+									</div>
+
+									<div class="result outcomes-result">
+										<h2><a href="" target="_blank"></a></h2>
+										<div class="file-upload-content">
+											<img class="file-upload-image" src="#" alt="your image" />
+										</div>
+										<p class="lead"></p>
+									</div>
+								</div>
+							</div>
+						</div> <!-- End Row -->
+					</div>
+				</div> <!-- End Row -->
+			</div> <!-- End Contaner Fluid -->
+		</section> <!-- End Section Content -->
+        
+		<script src="js/jquery-1.11.3.min.js"></script>  
+        <script src="js/popper.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/plugins.js"></script>    
+    </body>
+</html>
