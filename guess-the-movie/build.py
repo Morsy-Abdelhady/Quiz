@@ -7,6 +7,8 @@
   python3 build.py animatic    -> out/animatic.mp4 (timing preview built from refs/ photos)
   python3 build.py final       -> out/final.mp4 (from generated clips in clips/C01.mp4 … C12.mp4)
 
+Default layout is "show" (16:9 studio game-show, like the Gemini reference). Add --reels for 9:16.
+
 Only needs Python 3 (stdlib) and ffmpeg built with libass.
 """
 import array
@@ -27,6 +29,8 @@ CLIPS_DIR = os.path.join(HERE, "clips")
 VOICE_DIR = os.path.join(HERE, "voice")
 FONTS = os.path.join(HERE, "fonts")
 SR = 44100
+LAYOUT = "show"
+W, H = T.SIZES[LAYOUT]
 
 
 def run(cmd):
@@ -60,8 +64,8 @@ def ass_overlay(draft=False):
     # Colours are &HAABBGGRR.
     head = f"""[Script Info]
 ScriptType: v4.00+
-PlayResX: {T.W}
-PlayResY: {T.H}
+PlayResX: {W}
+PlayResY: {H}
 WrapStyle: 0
 ScaledBorderAndShadow: yes
 
@@ -82,7 +86,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     def add(layer, a, b, style, text, name=""):
         ev.append(f"Dialogue: {layer},{ts(a)},{ts(b)},{style},{name},0,0,0,,{text}")
 
-    cx = T.W // 2
+    cx = W // 2
 
     # Subtitles (speaker-coloured, quick fade, never over the mouth: bottom safe area).
     for a, b, who, text in T.LINES:
@@ -132,24 +136,24 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         col = r"\1c&H3C3CFF&" if red else r"\1c&HFFFFFF&"
         pop = r"\t(0,120,\fscx112\fscy112)\t(120,300,\fscx100\fscy100)" if red else ""
         add(5, a, b, "Shape", r"{\pos(%d,236)\1c&H101010&\1a&H30&\3c&H%s&\bord2\p1}%s"
-            % (T.W - 60 - 230, "3C3CFF" if red else "FFFFFF", rrect(230, 84, 42)))
-        add(6, a, b, "UI", r"{\pos(%d,278)%s%s\fs46}0:%02d" % (T.W - 60 - 115, col, pop, left))
+            % (W - 60 - 230, "3C3CFF" if red else "FFFFFF", rrect(230, 84, 42)))
+        add(6, a, b, "UI", r"{\pos(%d,278)%s%s\fs46}0:%02d" % (W - 60 - 115, col, pop, left))
 
     # Title card.
     a, b = T.TITLE_CARD
-    add(7, a, b, "Shape", r"{\pos(0,0)\1c&H000000&\1a&H60&\fad(150,200)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (T.W, T.W, T.H, T.H))
+    add(7, a, b, "Shape", r"{\pos(0,0)\1c&H000000&\1a&H60&\fad(150,200)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
     add(8, a, b, "Title", r"{\pos(%d,880)\fad(80,200)\fscx160\fscy160\t(0,220,\fscx100\fscy100)}خمن الفيلم" % cx)
     add(8, a + 0.25, b, "UI", r"{\pos(%d,1030)\fs64\1c&HF5E65A&\fad(150,200)}60 ثانية" % cx)
     add(8, a, b, "Shape", r"{\pos(%d,965)\an5\1c&HF5E65A&\fscx0\t(0,300,\fscx100)\fad(0,200)\p1}%s" % (cx, rrect(420, 6, 3)))
 
     # Guess: letterbox bars slide in, then out at the reveal.
     a, b = T.GUESS
-    for y0, y1 in ((-170, 0), (T.H, T.H - 170)):
-        add(7, a, b, "Shape", r"{\move(0,%d,0,%d,0,700)\1c&H000000&\p1}m 0 0 l %d 0 l %d 170 l 0 170" % (y0, y1, T.W, T.W))
+    for y0, y1 in ((-170, 0), (H, H - 170)):
+        add(7, a, b, "Shape", r"{\move(0,%d,0,%d,0,700)\1c&H000000&\p1}m 0 0 l %d 0 l %d 170 l 0 170" % (y0, y1, W, W))
 
     # Reveal: white flash, huge gold title with glow, then a badge to the end.
     r = T.REVEAL
-    add(9, r, r + 0.35, "Shape", r"{\pos(0,0)\1c&HFFFFFF&\fad(0,300)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (T.W, T.W, T.H, T.H))
+    add(9, r, r + 0.35, "Shape", r"{\pos(0,0)\1c&HFFFFFF&\fad(0,300)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
     add(8, r + 0.35, r + 3.2, "UI", r"{\pos(%d,700)\fs52\1c&HF5E65A&\fad(150,200)}الإجابة الصحيحة" % cx)
     add(8, r + 0.25, r + 3.2, "Reveal", r"{\pos(%d,880)\blur18\1a&H60&\3a&HFF&\fscx170\fscy170\t(0,260,\fscx100\fscy100)\fad(0,200)}الكيف" % cx)
     add(9, r + 0.25, r + 3.2, "Reveal", r"{\pos(%d,880)\fscx170\fscy170\t(0,260,\fscx100\fscy100)\fad(0,200)}الكيف" % cx)
@@ -157,11 +161,125 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     add(9, r + 3.2, T.DURATION, "UI", r"{\pos(%d,284)\fs56\1c&H46C8FF&\fad(200,0)}الكيف" % cx)
 
     # Quick fade to black at the very end.
-    add(20, T.DURATION - 0.3, T.DURATION, "Shape", r"{\pos(0,0)\1c&H000000&\fad(300,0)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (T.W, T.W, T.H, T.H))
+    add(20, T.DURATION - 0.3, T.DURATION, "Shape", r"{\pos(0,0)\1c&H000000&\fad(300,0)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
 
     if draft:
         add(30, 0, T.DURATION, "UI", r"{\pos(%d,140)\fs30\1a&H50&}ANIMATIC — مسودة توقيت بدون صوت حوار" % cx)
 
+    return head + "\n".join(ev) + "\n"
+
+
+def ass_show(draft=False):
+    """16:9 game-show HUD in the style of the Gemini reference, with clean, correct Arabic."""
+    PX, PW, PH, PY = 330, 1260, 150, 880          # bottom bar
+    QW = 230                                       # question box inside the bar
+    head = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: {W}
+PlayResY: {H}
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Me,Cairo,46,&H00FFFFFF,&H00FFFFFF,&H00101010,&H00000000,-1,0,0,0,100,100,0,0,1,1.5,0,5,{PX + QW + 50},{W - PX - PW + 40},0,-1
+Style: AI,Cairo,46,&H00F5E65A,&H00FFFFFF,&H00261A08,&H00000000,-1,0,0,0,100,100,0,0,1,1.5,0,5,{PX + QW + 50},{W - PX - PW + 40},0,-1
+Style: UI,Cairo,40,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,0,0,5,0,0,0,-1
+Style: Shape,Cairo,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,-1
+Style: Title,Cairo,150,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,0,6,5,0,0,0,-1
+Style: Reveal,Cairo,200,&H0046C8FF,&H00FFFFFF,&H00002850,&H78000000,-1,0,0,0,100,100,0,0,1,5,6,5,0,0,0,-1
+Style: Win,Cairo,170,&H0060FF5A,&H00FFFFFF,&H00104010,&H78000000,-1,0,0,0,100,100,0,0,1,5,6,5,0,0,0,-1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    ev = []
+
+    def add(layer, a, b, style, text):
+        ev.append(f"Dialogue: {layer},{ts(a)},{ts(b)},{style},,0,0,0,,{text}")
+
+    def panel(layer, a, b, x, y, w, h, r, border="F5E65A", alpha="38", fill="1A1410", extra=""):
+        add(layer, a, b, "Shape", r"{\pos(%d,%d)\1c&H%s&\1a&H%s&\3c&H%s&\bord2\shad0%s\p1}%s"
+            % (x, y, fill, alpha, border, extra, rrect(w, h, r)))
+
+    cx = W // 2
+    ta, tb = T.TITLE_CARD
+    r = T.REVEAL
+    # Bottom bar, always on (fades in after the hook's first beat); cyan glow line under it.
+    for a, b in ((0.0, ta), (tb, T.DURATION)):
+        panel(1, a, b, PX, PY, PW, PH, 18, extra=r"\fad(200,0)")
+        add(2, a, b, "Shape", r"{\pos(%d,%d)\1c&HF5E65A&\bord0\blur6\fad(200,0)\p1}%s" % (PX + 40, PY + PH - 3, rrect(PW - 80, 4, 2)))
+    # Question box inside the bar.
+    for a, b, n in T.COUNTER:
+        panel(3, a, b, PX + 16, PY + 16, QW, PH - 32, 12, alpha="10", fill="2A2014", extra=r"\fad(120,0)")
+        add(4, a, b, "UI", r"{\pos(%d,%d)\fs26\1c&HF5E65A&\fad(120,0)}QUESTION" % (PX + 16 + QW // 2, PY + 52))
+        add(4, a, b, "UI", r"{\pos(%d,%d)\fs50\fad(120,0)\fscx130\fscy130\t(0,200,\fscx100\fscy100)}%d / 9" % (PX + 16 + QW // 2, PY + 100, n))
+    # Final guess box replaces the counter.
+    ga, gb = T.GUESS
+    panel(3, ga, gb, PX + 16, PY + 16, QW, PH - 32, 12, border="3C3CFF", alpha="10", fill="10102A", extra=r"\fad(200,0)")
+    add(4, ga, gb, "UI", r"{\pos(%d,%d)\fs34\1c&H5050FF&\fad(200,0)\t(0,400,\fscx112\fscy112)\t(400,800,\fscx100\fscy100)}FINAL GUESS" % (PX + 16 + QW // 2, PY + PH // 2))
+    # Dialogue inside the bar (speaker-coloured).
+    for a, b, who, text in T.LINES:
+        add(5, a, b + 0.08, "AI" if who == T.AI else "Me",
+            r"{\pos(%d,%d)\fad(80,60)}%s" % (PX + QW + 30 + (PW - QW - 60) // 2, PY + PH // 2, text))
+    # "AI Host" tag with a pulsing orb and live waveform above the bar's right end while the AI speaks.
+    tx, ty, tw, th = PX + PW - 330, PY - 74, 330, 62
+    for a, b, who, _ in T.LINES:
+        if who != T.AI:
+            continue
+        a0, b1 = a - 0.12, b + 0.12
+        panel(3, a0, b1, tx, ty, tw, th, 14, extra=r"\fad(100,100)")
+        add(4, a0, b1, "UI", r"{\pos(%d,%d)\fs30\fad(100,100)}AI Host" % (tx + tw - 85, ty + th // 2))
+        pulses = "".join(r"\t(%d,%d,\fscx%d\fscy%d)" % (i * 260, i * 260 + 260, sz, sz)
+                         for i, sz in enumerate([125, 92] * int((b1 - a0) / 0.52 + 1)))
+        add(4, a0, b1, "Shape", r"{\pos(%d,%d)\an7\1c&HF5E65A&\1a&H60&\bord0\blur8\fad(100,100)%s\p1}%s" % (tx + tw - 175, ty + th // 2, pulses, circle(15)))
+        add(5, a0, b1, "Shape", r"{\pos(%d,%d)\an7\1c&HFFF8D8&\bord0\fad(100,100)%s\p1}%s" % (tx + tw - 175, ty + th // 2, pulses, circle(7)))
+        rnd = random.Random(int(a * 100))
+        for i in range(7):
+            steps = "".join(r"\t(%d,%d,\fscy%d)" % (k * 90, k * 90 + 80, rnd.choice([25, 45, 70, 100, 130]))
+                            for k in range(int((b1 - a0) / 0.09)))
+            add(4, a0, b1, "Shape", r"{\pos(%d,%d)\an5\1c&HF5E65A&\bord0\fscy30\fad(100,100)%s\p1}%s"
+                % (tx + 28 + i * 18, ty + th // 2, steps, rrect(8, 34, 4)))
+    # Countdown timer, top-right.
+    t0, t1 = T.TIMER
+    for sec in range(int(t0), int(t1)):
+        a, b = max(t0, sec), min(t1, sec + 1)
+        left = int(round(T.DURATION - sec))
+        red = left <= 15
+        panel(3, a, b, W - 70 - 200, 60, 200, 76, 38, border="3C3CFF" if red else "FFFFFF")
+        pop = r"\t(0,120,\fscx112\fscy112)\t(120,300,\fscx100\fscy100)" if red else ""
+        add(4, a, b, "UI", r"{\pos(%d,98)%s%s\fs44}0:%02d" % (W - 70 - 100, r"\1c&H5050FF&" if red else "", pop, left))
+    # Show logo, top-left (from the title card on).
+    panel(3, tb, T.DURATION, 70, 60, 300, 76, 38, extra=r"\fad(200,0)")
+    add(4, tb, T.DURATION, "UI", r"{\pos(220,98)\fs38\fad(200,0)}خمن الفيلم")
+    # Title card.
+    add(7, ta, tb, "Shape", r"{\pos(0,0)\1c&H000000&\1a&H50&\fad(150,200)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
+    add(8, ta, tb, "Title", r"{\pos(%d,470)\fad(80,200)\fscx160\fscy160\t(0,220,\fscx100\fscy100)}خمن الفيلم" % cx)
+    add(8, ta, tb, "Shape", r"{\pos(%d,565)\an5\1c&HF5E65A&\fscx0\t(0,300,\fscx100)\fad(0,200)\p1}%s" % (cx, rrect(480, 6, 3)))
+    add(8, ta + 0.25, tb, "UI", r"{\pos(%d,640)\fs66\1c&HF5E65A&\fad(150,200)}60 ثانية" % cx)
+    # Guess: letterbox.
+    for y0, y1 in ((-100, 0), (H, H - 100)):
+        add(9, ga, gb, "Shape", r"{\move(0,%d,0,%d,0,700)\1c&H000000&\p1}m 0 0 l %d 0 l %d 100 l 0 100" % (y0, y1, W, W))
+    # Reveal: flash, "صح!", sparkles, big title, then a gold answer box on the bar.
+    add(10, r, r + 0.35, "Shape", r"{\pos(0,0)\1c&HFFFFFF&\fad(0,300)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
+    add(8, r + 0.15, r + 2.4, "Win", r"{\pos(%d,400)\blur14\1a&H70&\3a&HFF&\fscx40\fscy40\t(0,200,\fscx115\fscy115)\t(200,350,\fscx100\fscy100)\fad(0,250)}صح!" % (W - 380))
+    add(9, r + 0.15, r + 2.4, "Win", r"{\pos(%d,400)\fscx40\fscy40\t(0,200,\fscx115\fscy115)\t(200,350,\fscx100\fscy100)\fad(0,250)}صح!" % (W - 380))
+    rnd = random.Random(52)
+    for i in range(46):
+        ang = rnd.uniform(0, 2 * math.pi)
+        dist = rnd.uniform(220, 620)
+        x1, y1 = cx + math.cos(ang) * dist * 1.4, 640 + math.sin(ang) * dist * 0.6
+        col = rnd.choice(["46C8FF", "F5E65A", "60FF5A", "FFFFFF"])
+        d0 = rnd.uniform(0, 0.3)
+        add(8, r + d0, r + d0 + 1.3, "Shape", r"{\move(%d,640,%d,%d,0,900)\1c&H%s&\bord0\blur1.5\frz%d\fad(0,500)\p1}%s"
+            % (cx, x1, y1, col, rnd.randint(0, 90), "m 0 -14 l 4 -4 l 14 0 l 4 4 l 0 14 l -4 4 l -14 0 l -4 -4"))
+    add(8, r + 0.4, r + 3.0, "Reveal", r"{\pos(%d,420)\blur16\1a&H60&\3a&HFF&\fscx160\fscy160\t(0,260,\fscx100\fscy100)\fad(0,250)}الكيف" % 400)
+    add(9, r + 0.4, r + 3.0, "Reveal", r"{\pos(%d,420)\fscx160\fscy160\t(0,260,\fscx100\fscy100)\fad(0,250)}الكيف" % 400)
+    panel(3, r + 0.3, T.DURATION, PX + 16, PY + 16, QW, PH - 32, 12, border="46C8FF", alpha="10", fill="102030", extra=r"\fad(200,0)")
+    add(4, r + 0.3, T.DURATION, "UI", r"{\pos(%d,%d)\fs54\1c&H46C8FF&\fad(200,0)}الكيف" % (PX + 16 + QW // 2, PY + PH // 2))
+    add(20, T.DURATION - 0.3, T.DURATION, "Shape", r"{\pos(0,0)\1c&H000000&\fad(300,0)\p1}m 0 0 l %d 0 l %d %d l 0 %d" % (W, W, H, H))
+    if draft:
+        add(30, 0, T.DURATION, "UI", r"{\pos(%d,30)\fs24\1a&H50&}ANIMATIC — مسودة توقيت بدون صوت حوار" % cx)
     return head + "\n".join(ev) + "\n"
 
 
@@ -322,7 +440,7 @@ def build_audio():
 def build_assets(draft=False):
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "overlay.ass"), "w", encoding="utf-8") as f:
-        f.write(ass_overlay(draft=draft))
+        f.write((ass_show if LAYOUT == "show" else ass_overlay)(draft=draft))
     build_audio()
 
 
@@ -353,19 +471,29 @@ def build_animatic():
     os.makedirs(seg_dir, exist_ok=True)
     segs = []
     for c in T.CLIPS:
-        prefix, fx, fy, frac, z0, z1 = c["ref"]
-        src = find_ref(prefix)
-        iw, ih = probe_size(src)
-        ch = frac * ih
-        cw = ch * T.W / T.H
-        if cw > iw:
-            cw, ch = iw, iw * T.H / T.W
-        x = min(max(0, fx * iw - cw / 2), iw - cw)
-        y = min(max(0, fy * ih - 0.40 * ch), ih - ch)
+        if LAYOUT == "show":
+            # Frame from the Gemini reference; keep the top 64% so its baked-in (garbled) HUD is cropped away.
+            t_ref, fx, z0, z1 = c["still"]
+            src = os.path.join(seg_dir, c["id"] + "_still.png")
+            run(["ffmpeg", "-y", "-v", "error", "-ss", str(t_ref), "-i", os.path.join(REFS, T.STILL_VIDEO),
+                 "-frames:v", "1", src])
+            iw, ih = probe_size(src)
+            cw, ch = iw * 0.64, ih * 0.64
+            x, y = min(max(0, fx * iw - cw / 2), iw - cw), 0
+        else:
+            prefix, fx, fy, frac, z0, z1 = c["ref"]
+            src = find_ref(prefix)
+            iw, ih = probe_size(src)
+            ch = frac * ih
+            cw = ch * W / H
+            if cw > iw:
+                cw, ch = iw, iw * H / W
+            x = min(max(0, fx * iw - cw / 2), iw - cw)
+            y = min(max(0, fy * ih - 0.40 * ch), ih - ch)
         n = int(round((c["end"] - c["start"]) * T.FPS))
-        vf = (f"crop={int(cw)}:{int(ch)}:{int(x)}:{int(y)},scale={T.W * 2}:{T.H * 2},"
+        vf = (f"crop={int(cw)}:{int(ch)}:{int(x)}:{int(y)},scale={W * 2}:{H * 2},"
               f"zoompan=z='{z0}+({z1}-{z0})*on/{max(1, n - 1)}':x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2':"
-              f"d={n}:s={T.W}x{T.H}:fps={T.FPS},"
+              f"d={n}:s={W}x{H}:fps={T.FPS},"
               "eq=contrast=1.06:saturation=0.92:brightness=-0.02,vignette=angle=PI/4.5,format=yuv420p")
         seg = os.path.join(seg_dir, c["id"] + ".mp4")
         run(["ffmpeg", "-y", "-v", "error", "-i", src, "-vf", vf, "-frames:v", str(n),
@@ -374,24 +502,57 @@ def build_animatic():
     finish(segs, dialogue=None, out_name="animatic.mp4")
 
 
+def speech_onset(path):
+    """Seconds until the first sound above -32 dB (the first spoken word in a generated clip)."""
+    log = subprocess.run(["ffmpeg", "-hide_banner", "-i", path, "-af", "silencedetect=n=-32dB:d=0.15", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    starts = [float(l.split("silence_start: ")[1]) for l in log.splitlines() if "silence_start: " in l]
+    ends = [float(l.split("silence_end: ")[1].split()[0]) for l in log.splitlines() if "silence_end: " in l]
+    if starts and starts[0] < 0.05 and ends:
+        return ends[0]
+    return 0.0
+
+
+def clip_offsets():
+    """Where to start reading each generated clip. Auto: line its first word up with the plan.
+    Override any clip in clips/offsets.json, e.g. {"C03": 0.6}."""
+    path = os.path.join(CLIPS_DIR, "offsets.json")
+    manual = json.load(open(path)) if os.path.exists(path) else {}
+    out = {}
+    for c in T.CLIPS:
+        if c["id"] in manual:
+            out[c["id"]] = float(manual[c["id"]])
+            continue
+        lines = clip_lines(c)
+        src = os.path.join(CLIPS_DIR, c["id"] + ".mp4")
+        if not lines or not os.path.exists(src):
+            out[c["id"]] = 0.0
+            continue
+        planned = lines[0][0] - c["start"]
+        out[c["id"]] = max(0.0, round(speech_onset(src) - planned, 2))
+    return out
+
+
 def build_final():
     """Assemble the generated clips: conform, cut to plan, add AI voice, music, SFX and overlays."""
     build_assets(draft=False)
     seg_dir = os.path.join(OUT, "conformed")
     os.makedirs(seg_dir, exist_ok=True)
     segs = []
+    offsets = clip_offsets()
+    print("clip offsets (s):", offsets)
     for c in T.CLIPS:
         src = os.path.join(CLIPS_DIR, c["id"] + ".mp4")
         if not os.path.exists(src):
             raise SystemExit(f"missing {src} — generate it from SHOTLIST.md first")
         d = c["end"] - c["start"]
-        vf = (f"scale={T.W}:{T.H}:force_original_aspect_ratio=increase,crop={T.W}:{T.H},fps={T.FPS},"
+        vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={T.FPS},"
               f"tpad=stop_mode=clone:stop_duration={d},trim=duration={d},setpts=PTS-STARTPTS,format=yuv420p")
         af = f"aresample={SR},aformat=channel_layouts=mono,apad,atrim=duration={d},asetpts=PTS-STARTPTS"
         seg = os.path.join(seg_dir, c["id"] + ".mp4")
         has_audio = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "a",
                                              "-show_entries", "stream=index", "-of", "csv=p=0", src]).strip()
-        cmd = ["ffmpeg", "-y", "-v", "error", "-i", src]
+        cmd = ["ffmpeg", "-y", "-v", "error", "-ss", str(offsets[c["id"]]), "-i", src]
         if not has_audio:
             cmd += ["-f", "lavfi", "-i", f"anullsrc=r={SR}:cl=mono"]
         cmd += ["-vf", vf, "-af", af, "-map", "0:v", "-map", "0:a" if has_audio else "1:a",
@@ -448,6 +609,9 @@ def finish(segs, dialogue, out_name):
 
 # ───────────────────────────── shot list ─────────────────────────────
 
+ASPECT = {"show": "horizontal 16:9 (1920x1080)", "reels": "vertical 9:16 (1080x1920)"}
+
+
 def clip_lines(c):
     return [(a, b, who, text) for a, b, who, text in T.LINES if c["start"] <= a < c["end"]]
 
@@ -460,11 +624,11 @@ def clip_prompt(c):
         if who == T.ME:
             beats.append(f'{rel}: he says in Egyptian Arabic: "{text}"')
         else:
-            beats.append(f"{rel}: he is silent, listening to an off-screen voice to camera-right, reacting naturally")
+            beats.append(f'{rel}: he is silent and reacts while the off-screen AI host voice says: "{text}"')
     if not beats:
         beats.append("no dialogue")
     return (
-        f"{d:.1f}-second vertical 9:16 photoreal clip. {T.IDENTITY} {T.WARDROBE} {T.SET}\n"
+        f"{d:.1f}-second {ASPECT[LAYOUT]} photoreal clip. {T.IDENTITY} {T.WARDROBE} {T.SET}\n"
         f"Shot: {c['shot']}. Camera: {c['camera']}.\n"
         f"Performance: {c['face']}. Body: {c['body']}. He mostly looks into the lens; when listening he glances to camera-right.\n"
         f"Timing: " + "; ".join(beats) + ".\n"
@@ -474,7 +638,9 @@ def clip_prompt(c):
 
 def build_plan():
     out = ["# خمن الفيلم — Shot list (generated from `timeline.py`)\n",
-           "Generate each clip with the **same reference photos attached every time**. "
+           "Generate each clip (Gemini / Veo, 8 s) with the **same reference photos attached every time**. "
+           "Gemini also voices the off-screen AI host, so no separate TTS is needed. "
+           "It must render **no on-screen text**: all Arabic text and the game-show HUD are burned in by `build.py final`. "
            "Paste the prompt as-is; paste the negative prompt in the tool's negative field "
            "(or append `Avoid: …` if it has none). Save the result as `clips/<ID>.mp4`.\n",
            "**Negative prompt (all clips):** " + T.NEGATIVE + "\n"]
@@ -502,5 +668,10 @@ def build_plan():
 
 
 if __name__ == "__main__":
-    cmd = sys.argv[1] if len(sys.argv) > 1 else "plan"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if "--reels" in sys.argv:
+        LAYOUT = "reels"
+    W, H = T.SIZES[LAYOUT]
+    T.W, T.H = W, H
+    cmd = args[0] if args else "plan"
     {"plan": build_plan, "assets": build_assets, "animatic": build_animatic, "final": build_final}[cmd]()
